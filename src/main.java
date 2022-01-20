@@ -8,32 +8,41 @@ import java.util.ArrayList;
  */
 public class main {
 
-    public static int binaryConverter(int number) {
-        ArrayList<Integer> remainder = new ArrayList<Integer>();
-        int currentNumber = number;
-        int divider = 0;
-        int quotient = 0;
-        int[] binaryInt;
-        boolean foundSmallest = false;
+    public static String eightBitBinaryConverter(String text) {
+        String output = "";
 
-        while(!foundSmallest) {
-            divider += 2;
-            quotient += 1;
-            if (divider == currentNumber) {
-                currentNumber /= 2;
-
-            }
-            if (divider > currentNumber) {
-
-            }
+        for (int i = 0 ; i < text.length() ; i++) {
+            output += Integer.toBinaryString( text.charAt(i) );
         }
 
+        while (output.length() < 8) {
+            output = "0" + output;
+        }
 
-        return number;
+        return output;
+    }
+
+
+    public static void Encrypt(String text) {
+        char key = '(';
+        String crypt = "";
+
+        for (int i = 0 ; i < text.length() ; i++) {
+            System.out.println(Integer.toBinaryString( text.charAt(i) ));                                       // Convert text charAt(i) to ASCII binary
+            System.out.println("0" + Integer.toBinaryString(key) );                                             // Concert key to binary
+            System.out.println(Integer.toBinaryString(text.charAt(i)^key) + "\n" + text.charAt(i) + "\n");   //  XOR charAt(i) + key
+            crypt += (char)(text.charAt(i)^key);
+        }
+        System.out.println(crypt);
     }
 
     public static void main(String[] args) {
-        System.out.println(binaryConverter(145));
+
+
+        Encrypt("Secret message");
+        Encrypt("{MKZMEM[[IOM");
+        System.out.println(eightBitBinaryConverter(" "));
+        System.out.println(eightBitBinaryConverter("t"));
 
         /*
         String filenameTxt = "RandomNumbers.txt";
