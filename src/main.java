@@ -8,6 +8,18 @@ import java.util.ArrayList;
  */
 public class main {
 
+    public static String XOR(String value1, String value2) {
+        System.out.println(value1 + "\n" + value2);
+
+        String output = "";
+        for (int i = 0; i < value1.length(); i++) {
+            boolean comparison = value1.charAt(i) == value2.charAt(i);
+            if (comparison) {output += "0";}
+            else if (!(comparison)) {output += "1";}
+        }
+        return output;
+    }
+
     public static String eightBitBinaryConverter(String text) {
         String output = "";
 
@@ -28,12 +40,12 @@ public class main {
         String crypt = "";
 
         for (int i = 0 ; i < text.length() ; i++) {
-            System.out.println(Integer.toBinaryString( text.charAt(i) ));                                       // Convert text charAt(i) to ASCII binary
-            System.out.println("0" + Integer.toBinaryString(key) );                                             // Concert key to binary
-            System.out.println(Integer.toBinaryString(text.charAt(i)^key) + "\n" + text.charAt(i) + "\n");   //  XOR charAt(i) + key
-            crypt += (char)(text.charAt(i)^key);
+            System.out.println("Text.charAt(" + i + ") = " + eightBitBinaryConverter(Character.toString(text.charAt(i))));                                       // Convert text charAt(i) to ASCII binary
+            System.out.println("Key.charAt(" + i + ") = " + eightBitBinaryConverter(Character.toString(key)));                                             // Concert key to binary
+            System.out.println("XORed binary = " + XOR( eightBitBinaryConverter(text), eightBitBinaryConverter(Character.toString(key))));   //  XOR charAt(i) + key
         }
-        System.out.println(crypt);
+        crypt += XOR( eightBitBinaryConverter(text), eightBitBinaryConverter(Character.toString(key)));
+        System.out.println("Crypt = " + crypt);
     }
 
     public static void main(String[] args) {
@@ -41,9 +53,13 @@ public class main {
 
         Encrypt("Secret message");
         Encrypt("{MKZMEM[[IOM");
-        System.out.println(eightBitBinaryConverter(" "));
-        System.out.println(eightBitBinaryConverter("t"));
 
+
+/*
+        System.out.println("1011000");
+        System.out.println("0101010");
+        System.out.println(XOR("1011000", "0101010"));
+*/
         /*
         String filenameTxt = "RandomNumbers.txt";
         String filenameBin = "RandomNumbers.bin";
