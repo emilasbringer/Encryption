@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.io.*;
+import java.util.Random;
 
 /**
  * This is a class
@@ -8,43 +9,37 @@ import java.util.ArrayList;
  */
 public class main {
 
-    public static String eightBitBinaryConverter(String text) {
-        String output = "";
-
-        for (int i = 0 ; i < text.length() ; i++) {
-            output += Integer.toBinaryString( text.charAt(i) );
-        }
-
-        while (output.length() < 8) {
-            output = "0" + output;
-        }
-
-        return output;
-    }
-
-
     public static void Encrypt(String text) {
         char key = '(';
         String crypt = "";
+        int[] intArray = new int[text.length()];
+        int[] cryptArray = new int[text.length()];
 
         for (int i = 0 ; i < text.length() ; i++) {
-            System.out.println(Integer.toBinaryString( text.charAt(i) ));                                       // Convert text charAt(i) to ASCII binary
-            System.out.println("0" + Integer.toBinaryString(key) );                                             // Concert key to binary
-            System.out.println(Integer.toBinaryString(text.charAt(i)^key) + "\n" + text.charAt(i) + "\n");   //  XOR charAt(i) + key
-            crypt += (char)(text.charAt(i)^key);
+            intArray[i] = text.charAt(i);
+            cryptArray[i] = (char)(intArray[i]^key);
         }
-        System.out.println(crypt);
+        for (int i = 0; i < intArray.length; i++) {
+            System.out.println(intArray[i]);
+
+        }
+        System.out.println("");
+        for (int i = 0; i < intArray.length; i++) {
+            System.out.println(cryptArray[i]);
+        }
+
     }
 
     public static void main(String[] args) {
 
+        Encrypt("abcabc");
 
-        Encrypt("Secret message");
-        Encrypt("{MKZMEM[[IOM");
-        System.out.println(eightBitBinaryConverter(" "));
-        System.out.println(eightBitBinaryConverter("t"));
+        //Encrypt("{MKZMEM[[IOM");
+        //System.out.println(eightBitBinaryConverter(" "));
+        //System.out.println(eightBitBinaryConverter("t"));
 
-        /*
+
+
         String filenameTxt = "RandomNumbers.txt";
         String filenameBin = "RandomNumbers.bin";
 
@@ -82,7 +77,7 @@ public class main {
             txtIn.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 
