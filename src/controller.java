@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.text.View;
 import java.io.*;
 import java.util.Random;
 import java.awt.event.ActionEvent;
@@ -14,12 +13,13 @@ import java.awt.event.ActionListener;
 public class controller {
     private view view;
     private model model;
+    private boolean fileSelected = false;
+    private File outputFile = new File("C:\\Users\\emila\\IdeaProjects\\Encryption\\output.bin");
 
     public controller() {
         view = new view();
         model = new model();
 
-        //Encrypt("abcabc");
 
         JFileChooser fileChooser = new JFileChooser("C:\\Users\\emila\\IdeaProjects\\Encryption");
         JFrame frame = new JFrame("Encryptor 6000 machine");
@@ -33,14 +33,18 @@ public class controller {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.testprint();
+                if (fileSelected) {
+                    model.encryptTextFile(fileChooser.getSelectedFile(), outputFile);
+                }
             }
         });
 
         view.getSelectFileToEncryptButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               int choosenFile = fileChooser.showOpenDialog(null);
-               System.out.println(choosenFile);
+               fileChooser.showOpenDialog(null);
+               view.setSelectedFileText(fileChooser.getSelectedFile().getAbsolutePath());
+               fileSelected = true;
             }
         });
 
@@ -107,6 +111,6 @@ public class controller {
         return cryptArray;
     }
 
-    public static void main(String[] args) {controller mainController = new controller();}
+    public static void main(String[] args) {controller c = new controller();}
 
 }
