@@ -64,7 +64,7 @@ public class controller {
             }
         });
 
-        //Encryption key
+        //Generate encryption key
         view.getGenerateKeyButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
