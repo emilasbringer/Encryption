@@ -1,5 +1,9 @@
+import javax.crypto.SecretKey;
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,10 +19,16 @@ public class controller {
     private model model;
     private boolean fileSelected = false;
     private File outputFile = new File("C:\\Users\\emila\\IdeaProjects\\Encryption\\output.bin");
+    private Font largeFont = new Font("SansSerif", Font.BOLD, 30);
+    private File inputFile;
+    private int inputFileLength;
+    private SecretKey encryptionKey;
+    private String secretKeyString;
 
     public controller() {
         view = new view();
         model = new model();
+
 
 
         JFileChooser fileChooser = new JFileChooser("C:\\Users\\emila\\IdeaProjects\\Encryption");
@@ -27,24 +37,46 @@ public class controller {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        frame.setSize(500,500);
+        frame.setSize(600,600);
+        view.getProgramTitle().setFont(largeFont);
 
+
+        //Encrypt button
         view.getEncryptButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.testprint();
                 if (fileSelected) {
                     model.encryptTextFile(fileChooser.getSelectedFile(), outputFile);
+                    view.setEncryptionStatus("Encrypting...");
                 }
+                else view.setEncryptionStatus("No file selected (⋋▂⋌)");
             }
         });
 
+        //Select file to encrypt button
         view.getSelectFileToEncryptButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                fileChooser.showOpenDialog(null);
                view.setSelectedFileText(fileChooser.getSelectedFile().getAbsolutePath());
                fileSelected = true;
+               inputFile = fileChooser.getSelectedFile();
+            }
+        });
+
+        //Encryption key
+        view.getGenerateKeyButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    inputFileLength = model.readFileString(inputFile.getAbsolutePath(), StandardCharsets.UTF_8).length()/2;
+                    encryptionKey = model.generateKey(inputFileLength);
+                    secretKeyString = new String(encryptionKey.getEncoded(), StandardCharsets.UTF_8);
+                    view.setEncryptionTextField(secretKeyString);
+
+                } catch (IOException | NoSuchAlgorithmException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
