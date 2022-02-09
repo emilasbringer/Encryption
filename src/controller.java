@@ -24,6 +24,9 @@ public class controller {
     private int inputFileLength;
     private SecretKey encryptionKey;
     private String secretKeyString;
+    private int[] secretKeyIntArray;
+    private String secretKeyIntString = "";
+    private boolean userInputKey = true;
 
     public controller() {
         view = new view();
@@ -45,9 +48,16 @@ public class controller {
         view.getEncryptButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (fileSelected) {
-                    model.encryptTextFile(fileChooser.getSelectedFile(), outputFile);
-                    view.setEncryptionStatus("Encrypting...");
+                if (fileSelected && !userInputKey) {
+                    model.encryptTextFile(fileChooser.getSelectedFile(), outputFile, secretKeyIntArray);
+                    view.setEncryptionStatus("Encrypting with computer generated AES key");
+
+                }
+                else if (fileSelected) {
+                   System.out.println(view.getEncryptionTextField().getText());
+                   view.setEncryptionStatus("Encrypting with user input key");
+                   secretKeyIntArray = model.stringToArray(view.getEncryptionTextField().getText());
+                   System.out.println(secretKeyIntArray[0]);
                 }
                 else view.setEncryptionStatus("No file selected (⋋▂⋌)");
             }
@@ -61,6 +71,11 @@ public class controller {
                view.setSelectedFileText(fileChooser.getSelectedFile().getAbsolutePath());
                fileSelected = true;
                inputFile = fileChooser.getSelectedFile();
+               try {
+                   inputFileLength = model.readFileString(inputFile.getAbsolutePath(), StandardCharsets.UTF_8).length()/2;
+               } catch (IOException ex) {
+                   ex.printStackTrace();
+               }
             }
         });
 
@@ -69,14 +84,22 @@ public class controller {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    inputFileLength = model.readFileString(inputFile.getAbsolutePath(), StandardCharsets.UTF_8).length()/2;
-                    encryptionKey = model.generateKey(inputFileLength);
-                    secretKeyString = new String(encryptionKey.getEncoded(), StandardCharsets.UTF_8);
-                    view.setEncryptionTextField(secretKeyString);
-
-                } catch (IOException | NoSuchAlgorithmException ex) {
+                    encryptionKey = model.generateKey();
+                } catch (NoSuchAlgorithmException ex) {
                     ex.printStackTrace();
                 }
+                userInputKey = false;
+                secretKeyIntString = "";
+                secretKeyString = new String(encryptionKey.getEncoded(), StandardCharsets.ISO_8859_1);
+
+                secretKeyIntArray = new int[secretKeyString.length()];
+                secretKeyIntArray = model.keyToArray(secretKeyString);
+
+                for (int i = 0; i < secretKeyIntArray.length; i++) {
+                    secretKeyIntString += secretKeyIntArray[i] + " ";
+                }
+                view.setEncryptionTextField(secretKeyIntString);
+                System.out.println("SecretKey as ISO8859, length = " + secretKeyIntArray.length + " and of type = " + encryptionKey.getFormat() + "\n" + secretKeyIntString);
             }
         });
 
@@ -122,26 +145,6 @@ public class controller {
     }
 
 
-    public static int[] Encrypt(String text) {
-        char key = '(';
-        String crypt = "";
-        int[] intArray = new int[text.length()];
-        int[] cryptArray = new int[text.length()];
-
-        for (int i = 0 ; i < text.length() ; i++) {
-            intArray[i] = text.charAt(i);
-            cryptArray[i] = (char)(intArray[i]^key);
-        }
-        for (int i = 0; i < intArray.length; i++) {
-            System.out.println(intArray[i]);
-
-        }
-        System.out.println("");
-        for (int i = 0; i < intArray.length; i++) {
-            System.out.println(cryptArray[i]);
-        }
-        return cryptArray;
-    }
 
     public static void main(String[] args) {controller c = new controller();}
 
