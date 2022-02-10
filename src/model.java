@@ -2,6 +2,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -27,7 +28,7 @@ public class model {
         int numberOfInts = 0;
         int[] secretKeyIntArray = new int[secretInputString.length()];
         for (int i = 0; i < secretInputString.length(); i++) {
-            if (secretInputString.charAt(i) == '1' || secretInputString.charAt(i) == '2' || secretInputString.charAt(i) == '3' || secretInputString.charAt(i) == '4' || secretInputString.charAt(i) == '5' || secretInputString.charAt(i) == '6' || secretInputString.charAt(i) == '7' || secretInputString.charAt(i) == '8' || secretInputString.charAt(i) == '9') {
+            if (secretInputString.charAt(i) == '1' || secretInputString.charAt(i) == '2' || secretInputString.charAt(i) == '3' || secretInputString.charAt(i) == '4' || secretInputString.charAt(i) == '5' || secretInputString.charAt(i) == '6' || secretInputString.charAt(i) == '7' || secretInputString.charAt(i) == '8' || secretInputString.charAt(i) == '9' || secretInputString.charAt(i) == '0') {
                 numberOfCharacters++;
             }
             if (secretInputString.charAt(i) == ' ') {
@@ -35,7 +36,7 @@ public class model {
                 subString = subString.strip();
                 secretKeyIntArray[numberOfInts] = Integer.parseInt(subString);
                 numberOfInts++;
-                System.out.println("Found integer = " + subString + "!");
+                //System.out.println("Found integer = " + subString + "!");
                 numberOfCharacters = 0;
             }
             if (i == (secretInputString.length()-1)) {
@@ -43,20 +44,21 @@ public class model {
                 subString = subString.strip();
                 secretKeyIntArray[numberOfInts] = Integer.parseInt(subString);
                 numberOfInts++;
-                System.out.println("Found integer = " + subString + "!");
+                //System.out.println("Found integer = " + subString + "!");
                 numberOfCharacters = 0;
             }
         }
-        return secretKeyIntArray;
+        System.out.println(numberOfInts);
+        secretKeyIntArray[numberOfInts] = numberOfInts;
+
+        return shrinkArray(secretKeyIntArray, numberOfInts+1);
     }
 
-    public void encryptTextFile(File inputFile, File outputFile, int[] secretKeyIntArray)  {
-        String line = null;
+    public void encryptTextFile(File inputFile, File outputFile, int[] secretKeyIntArray) throws IOException {
         try {
             file = new FileReader(inputFile);
             reader = new BufferedReader(file);
             scanner = new Scanner(file);
-            //line = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,53 +66,73 @@ public class model {
         System.out.println("Encrypting file " + inputFile + " \n and outputting to " + outputFile);
         int lineNumber = 0;
         int encryptionKeyCharPosition = 0;
+        int[] currentLineEncryptedChars = new int[ readFileString(inputFile.getAbsolutePath(), StandardCharsets.UTF_8).length()/2];
+
+        System.out.println("FILE TEXTLENGHT =" + readFileString(inputFile.getAbsolutePath(), StandardCharsets.UTF_8).length()/2 + "\n");
 
         while (scanner.hasNext()) {
-            System.out.println("Line " + lineNumber + " in txt file is = '" + scanner.nextLine() + "'");
-            System.out.println("Line " + lineNumber + " in bin file is = '" + encrypt(scanner.nextLine(), (char) secretKeyIntArray[encryptionKeyCharPosition]) + "' \n");
+            String currentLineText = scanner.nextLine();
+            for (int i = 0; i < currentLineText.length(); i++) {
+                System.out.println("Line " + lineNumber + " in txt file is = '" + currentLineText + "'");
+                currentLineEncryptedChars[i] = encryptChar(currentLineText.charAt(i), (char) secretKeyIntArray[encryptionKeyCharPosition]);
+
+                if (encryptionKeyCharPosition > 254) {
+                    encryptionKeyCharPosition = 0;
+                }
+                else encryptionKeyCharPosition++;
+            }
             lineNumber++;
         }
     }
 
-    public int[] encrypt(String text, char inputKey) {
-        System.out.println("Encrypting char " + text);
+    public int encryptChar(char character, char inputKey) {
         char key = inputKey;
-        String crypt = "";
-        int[] intArray = new int[text.length()];
-        int[] cryptArray = new int[text.length()];
+        int encryptedChar;
 
-        for (int i = 0 ; i < text.length() ; i++) {
-            intArray[i] = text.charAt(i);
-            cryptArray[i] = (char)(intArray[i]^key);
-        }
-
-        for (int i = 0; i < intArray.length; i++) {
-            System.out.println(intArray[i]);
-        }
-
-        System.out.println("");
-        for (int i = 0; i < intArray.length; i++) {
-            System.out.println(cryptArray[i]);
-        }
-
-        return cryptArray;
+        System.out.println("Encrypting " + character + " with the ASCII char nr" + (int)inputKey);
+        System.out.println(addZeroPad(Integer.toBinaryString(character)) + "\n" + addZeroPad(Integer.toBinaryString(inputKey)));
+        encryptedChar = (char)(character^key);
+        System.out.println(addZeroPad(Integer.toBinaryString(encryptedChar)) + " was the result" + "\n");
+        return encryptedChar;
     }
 
 
-    public SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(256);
-        return keyGen.generateKey();
+    public String generateKey() throws NoSuchAlgorithmException {
+        String secretKey = "";
+        int keyBitSizeInDecimal = 128;
+        int keyLength = 256;
+        for (int i = 0; i < keyLength; i++) {
+            double randomValue = Math.floor(Math.random() * keyBitSizeInDecimal);
+            secretKey += (int)randomValue + " ";
+        }
+        secretKey = secretKey.substring(0, secretKey.length() - 1);
+        return secretKey;
     }
 
-    static String readFileString(String path, Charset encoding)
+    public String readFileString(String path, Charset encoding)
             throws IOException
     {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }
 
-    public void testprint() {
-        System.out.println("test");
+    public int[] shrinkArray(int[] array, int desiredSize) {
+        int [] newArray = new int[desiredSize];
+
+        for (int i = 0; i < desiredSize; i++) {
+            newArray[i] = array[i];
+        }
+        System.out.println("Made a new array with length = " + desiredSize);
+        return newArray;
+    }
+
+    public String addZeroPad(String input) {
+        String zeros = "";
+        int bitSize = 7;
+        for (int i = 0; i < bitSize - input.length(); i++) {
+            zeros += "0";
+        }
+        input = zeros + input;
+        return input;
     }
 }
